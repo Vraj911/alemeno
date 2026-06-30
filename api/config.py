@@ -4,7 +4,7 @@ class Settings(BaseSettings):
     database_url: str
     redis_url: str
     openrouter_api_key: str = ""
-    openrouter_model: str = "google/gemini-flash-1.5"
+    openrouter_model: str = "google/gemini-2.5-flash"
     uploads_dir: str = "/data/uploads"
     @property
     def sync_database_url(self) -> str:
