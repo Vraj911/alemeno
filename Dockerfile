@@ -12,7 +12,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
-RUN chmod +x /app/scripts/entrypoint-api.sh
+RUN sed -i 's/\r$//' /app/scripts/entrypoint-api.sh && chmod +x /app/scripts/entrypoint-api.sh
 
 ENV PYTHONPATH=/app
 ENV PYTHONUNBUFFERED=1

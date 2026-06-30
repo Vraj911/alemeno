@@ -1,7 +1,6 @@
 import enum
 import uuid
 from datetime import date, datetime
-
 from sqlalchemy import (
     Boolean,
     Date,
@@ -17,33 +16,22 @@ from sqlalchemy import (
 )
 from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
-
-
 class Base(DeclarativeBase):
     pass
-
-
 class JobStatus(str, enum.Enum):
     pending = "pending"
     processing = "processing"
     completed = "completed"
     failed = "failed"
-
-
 class Currency(str, enum.Enum):
     INR = "INR"
     USD = "USD"
-
-
 class TransactionStatus(str, enum.Enum):
     SUCCESS = "SUCCESS"
     FAILED = "FAILED"
     PENDING = "PENDING"
-
-
 class Job(Base):
     __tablename__ = "jobs"
-
     id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True),
         primary_key=True,
@@ -62,15 +50,12 @@ class Job(Base):
     )
     completed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     error_message: Mapped[str | None] = mapped_column(Text, nullable=True)
-
     transactions: Mapped[list["Transaction"]] = relationship(
         back_populates="job", cascade="all, delete-orphan"
     )
     summary: Mapped["JobSummary | None"] = relationship(
         back_populates="job", cascade="all, delete-orphan", uselist=False
     )
-
-
 class Transaction(Base):
     __tablename__ = "transactions"
 
@@ -109,13 +94,9 @@ class Transaction(Base):
     llm_category: Mapped[str | None] = mapped_column(String(64), nullable=True)
     llm_raw_response: Mapped[str | None] = mapped_column(Text, nullable=True)
     llm_failed: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
-
     job: Mapped["Job"] = relationship(back_populates="transactions")
-
-
 class JobSummary(Base):
     __tablename__ = "job_summaries"
-
     id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True),
         primary_key=True,
@@ -133,5 +114,4 @@ class JobSummary(Base):
     anomaly_count: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
     narrative: Mapped[str] = mapped_column(Text, nullable=False, default="")
     risk_level: Mapped[str] = mapped_column(String(16), nullable=False, default="low")
-
     job: Mapped["Job"] = relationship(back_populates="summary")

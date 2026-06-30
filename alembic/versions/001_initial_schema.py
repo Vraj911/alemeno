@@ -1,21 +1,16 @@
 """Initial schema
-
 Revision ID: 001
 Revises:
 Create Date: 2026-06-30
 """
-
 from typing import Sequence, Union
-
 import sqlalchemy as sa
 from alembic import op
 from sqlalchemy.dialects import postgresql
-
 revision: str = "001"
 down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
-
 job_status = postgresql.ENUM(
     "pending", "processing", "completed", "failed", name="job_status", create_type=False
 )
@@ -23,13 +18,10 @@ currency_enum = postgresql.ENUM("INR", "USD", name="currency_enum", create_type=
 transaction_status = postgresql.ENUM(
     "SUCCESS", "FAILED", "PENDING", name="transaction_status", create_type=False
 )
-
-
 def upgrade() -> None:
     op.execute("CREATE TYPE job_status AS ENUM ('pending', 'processing', 'completed', 'failed')")
     op.execute("CREATE TYPE currency_enum AS ENUM ('INR', 'USD')")
     op.execute("CREATE TYPE transaction_status AS ENUM ('SUCCESS', 'FAILED', 'PENDING')")
-
     op.create_table(
         "jobs",
         sa.Column("id", sa.UUID(), server_default=sa.text("gen_random_uuid()"), nullable=False),
@@ -47,7 +39,6 @@ def upgrade() -> None:
         sa.Column("error_message", sa.Text(), nullable=True),
         sa.PrimaryKeyConstraint("id"),
     )
-
     op.create_table(
         "transactions",
         sa.Column("id", sa.UUID(), server_default=sa.text("gen_random_uuid()"), nullable=False),
@@ -70,7 +61,6 @@ def upgrade() -> None:
         sa.PrimaryKeyConstraint("id"),
     )
     op.create_index("ix_transactions_job_id", "transactions", ["job_id"])
-
     op.create_table(
         "job_summaries",
         sa.Column("id", sa.UUID(), server_default=sa.text("gen_random_uuid()"), nullable=False),
@@ -85,8 +75,6 @@ def upgrade() -> None:
         sa.PrimaryKeyConstraint("id"),
         sa.UniqueConstraint("job_id"),
     )
-
-
 def downgrade() -> None:
     op.drop_table("job_summaries")
     op.drop_index("ix_transactions_job_id", table_name="transactions")
